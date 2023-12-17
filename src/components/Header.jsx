@@ -14,12 +14,12 @@ const Header = () => {
   
   return (
     <div className="w-full  border-b shadow-sm sticky top-0 z-50">
-      <header className="w-full flex max-w-6xl mx-auto justify-between items-center ">
+      <header className="w-full flex max-w-6xl mx-auto justify-between items-center py-3">
         <div className="">
           <Link to={"/"}>
             <img
-              className="h-20"
-              src="https://b2cdata.marketing.moveaws.com/assets/images/social-img-ph.jpg"
+              className="h-5"
+              src="https://static.rdc.moveaws.com/images/logos/rdc-logo-default.svg"
               alt="Realtor"
             />
           </Link>
