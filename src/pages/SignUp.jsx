@@ -2,15 +2,26 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import OAuth from "../components/OAuth";
-
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  updateProfile,
+} from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName:"",
+    fullName: "",
     email: "",
     password: "",
   });
+
+  const { fullName, email, password } = formData;
+  const navigate=useNavigate();
+
 
   const handleChange = (e) => {
     setFormData((prevData) => ({
@@ -18,6 +29,32 @@ const SignUp = () => {
       [e.target.id]: [e.target.value],
     }));
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      updateProfile(auth.currentUser, {
+        displayName: fullName,
+      });
+      const formDataCopy = { ...formData };
+      delete formDataCopy.password;
+      formDataCopy.timestamp = serverTimestamp();
+      await setDoc(doc(db, "users", user.uid), formDataCopy);
+      navigate('/');
+      console.log(user);
+    } catch (error) {
+      console.log(error.message, error.code);
+    }
+  };
+
+
 
   console.log(formData);
   return (
@@ -32,8 +69,8 @@ const SignUp = () => {
           />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-12">
-          <form>
-          <input
+          <form onSubmit={handleSubmit}>
+            <input
               className="mb-6 w-full px-4 py-2 text-gray-700 text-xl bg-white border-gray-300 transition ease-in-out rounded outline-none"
               onChange={handleChange}
               type="text"
@@ -74,21 +111,24 @@ const SignUp = () => {
             <div className="flex justify-between mb-6">
               <p>
                 Have an account?
-                <Link to={"/signIn"} className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1">
-                Log in
+                <Link
+                  to={"/signIn"}
+                  className="text-red-600 hover:text-red-700 transition duration-200 ease-in-out ml-1"
+                >
+                  Log in
                 </Link>
               </p>
               <p className="text-blue-700 hover:text-blue-400 transition duration-200 ease-in-out">
-                <Link to={"/forgotPassword"}>
-                Forgot Password?
-                </Link>
+                <Link to={"/forgotPassword"}>Forgot Password?</Link>
               </p>
             </div>
-            <button className="w-full bg-blue-700 text-white font-semibold uppercase rounded-lg p-2 hover:bg-blue-500 transition duration-200 ease-in-out">Sign Up</button>
+            <button className="w-full bg-blue-700 text-white font-semibold uppercase rounded-lg p-2 hover:bg-blue-500 transition duration-200 ease-in-out">
+              Sign Up
+            </button>
             <div className="my-4 flex items-center before:flex-1 before:border-t before:border-gray-300 after:flex-1 after:border-t after:border-gray-300">
               <p className="font-semibold text-center mx-4">OR</p>
             </div>
-            <OAuth/>
+            <OAuth />
           </form>
         </div>
       </div>
@@ -96,4 +136,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp
+export default SignUp;
