@@ -1,12 +1,14 @@
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Profile = () => {
+  const auth=getAuth();
   const [formData, setFormData] = useState({
-    name: "Orkhan",
-    email: "orkhan@gmail.com",
+    name: auth.currentUser.displayName,
+    email:auth.currentUser.email,
   });
-
+   console.log(setFormData());
   const { name, email } = formData;
   return (
     <section className="max-w-6xl mx-auto my-20">
