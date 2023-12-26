@@ -2,6 +2,9 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import {  toast } from 'react-toastify';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {useNavigate} from "react-router-dom";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,12 +13,30 @@ const SignIn = () => {
     password: "",
   });
 
+  const{email,password}=formData;
+  const navigate=useNavigate();
+
   const handleChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
       [e.target.id]: [e.target.value],
     }));
   };
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault();
+    try {
+      const auth= getAuth();
+      const userCredential=await signInWithEmailAndPassword(auth,email,password);
+      if(userCredential.user){
+        navigate('/')
+      }
+
+      
+    } catch (error) {
+      toast.error("Unfortunately account not exist! ")
+    }
+  }
 
   console.log(formData);
   return (
@@ -30,7 +51,7 @@ const SignIn = () => {
           />
         </div>
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-12">
-          <form>
+          <form onSubmit={handleSubmit}>
             <input
               className="mb-6 w-full px-4 py-2 text-gray-700 text-xl bg-white border-gray-300 transition ease-in-out rounded outline-none"
               onChange={handleChange}
